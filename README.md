@@ -38,93 +38,99 @@ $ yarn run test:cov
    ```
    ex: DATABASE_URL="postgres://myuser:mypassword@localhost:5432/median-db"
    ```
-4. Mirgation: manually creating data models and then migrated to create table based on data model in the database
+4. Create data models
+5. Mirgation: manually creating data models and then migrated to create table based on data model in the database
 
    ```
    yarn prisma migrate dev --name init
    ```
 
-5.
+6. Generate prisma moduele and serive
+
+   ```
+    nest g module prisma
+    nest g service prisma
+   ```
+
+7. extend the PrismaService class with PrismaClient 
+8. export the PrismaService in the prisma modules so that any module can import it and inject prismaService inside the class 
 
 ## Notes on Prisma
 
 1. How to create 1 to 1 realtionship
+
    ```
     model User {
-    id Int @id @default(autoincrement())
-    email String @unique
-    name String
-    role Role @default(USER)
-    profile Profile?
+      id Int @id @default(autoincrement())
+      email String @unique
+      name String
+      role Role @default(USER)
+      profile Profile?
    }
-   ```
 
-model Profile {
-id Int @id @default(autoincrement())
-bio String
-userId Int @unique
-user User @relation(fields: [userId], references: [id])
-}
+    model Profile {
+      id Int @id @default(autoincrement())
+      bio String
+      userId Int @unique
+      user User @relation(fields: [userId], references: [id])
+    }
+
+   ```
 
 1 to 1 relation between user and profile tables. userId in profile will get value from id in User table
 
-```
 2.  How to create 1 to many relationship
 
-```
+        ```
 
-model User {
-id Int @id @default(autoincrement())
-email String @unique
-name String
-role Role @default(USER)
-profile Profile?
-posts Post[]
-}
+          model User {
+          id Int @id @default(autoincrement())
+          email String @unique
+          name String
+          role Role @default(USER)
+          profile Profile?
+          posts Post[]
+          }
 
-model Profile {
-id Int @id @default(autoincrement())
-bio String
-userId Int @unique
-user User @relation(fields: [userId], references: [id])
-}
+          model Post {
+          id Int @id @default(autoincrement())
+          authorId Int
+          title String
+          createdAt DateTime @default(now())
+          updatedAt DateTime @updatedAt
+          published Boolean @default(false)
+          author User @relation(fields: [authorId], references: [id])
 
-model Post {
-id Int @id @default(autoincrement())
-authorId Int
-title String
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
-published Boolean @default(false)
-author User @relation(fields: [authorId], references: [id])
+          }
 
-}
+        ```
 
-```
-1 to  many relation between user and post
+    1 to many relation between user and post
 
-3. Many to many relation   (n-m)
+3.  Many to many relation (n-m)
 
-```
+        ```
 
-model Post {
-id Int @id @default(autoincrement())
-authorId Int
-title String
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
-published Boolean @default(false)
-author User @relation(fields: [authorId], references: [id])
-categories Category[]
+          model Post {
+          id Int @id @default(autoincrement())
+          authorId Int
+          title String
+          createdAt DateTime @default(now())
+          updatedAt DateTime @updatedAt
+          published Boolean @default(false)
+          author User @relation(fields: [authorId], references: [id])
+          categories Category[]
 
-}
+          }
 
-model Category{
-id Int @id @default(autoincrement())
-name String
-posts Post[]
-}
+          model Category{
+          id Int @id @default(autoincrement())
+          name String
+          posts Post[]
+          }
 
-```
-Just create array of the model type inside each model
-```
+        ```
+
+    Just create array of the model type inside each model
+
+4.
